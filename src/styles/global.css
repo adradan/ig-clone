@@ -1,5 +1,12 @@
 @tailwind base;
 
+.lol {
+  align-items: center;
+  justify-content: center;
+  height: 2000px;
+  width: 2000px;
+}
+
 a {
   @apply text-blue-700;
 }
