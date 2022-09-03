@@ -1,46 +1,46 @@
-import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import type { ChangeEvent, Dispatch, MouseEvent, SetStateAction } from 'react';
 import { useRef, useState } from 'react';
 
 import { Meta } from '@/layouts/Meta';
 import { Main } from '@/templates/Main';
 // Work on dragging image
 const Hello = () => {
-  const [image, setImage] = useState(undefined as unknown);
+  // @ts-ignore
+  // Ignore for now, will use once uploaded
+  const [image, setImage] = useState(undefined as unknown); // eslint-disable-line no-unused-vars
   const [err, setErr] = useState('');
   const [imgH, setH] = useState(0);
   const [imgW, setW] = useState(0);
   const [newH, setNewH] = useState(0);
   const [newW, setNewW] = useState(0);
   const [imgUrl, setUrl] = useState('');
-  const [checked, setChecked] = useState(0);
+  const [checked, setChecked] = useState(1);
   const imgParent = useRef<null | HTMLDivElement>(null);
   const imgDiv = useRef<null | HTMLDivElement>(null);
 
-  const getSquare = () => {
-    // if (!imgParent.current) return;
-    // const { current } = imgParent;
-    // const rect = current.getBoundingClientRect();
+  const getSquare = (): void => {
+    // Reset to square res
     setNewH(800);
     setNewW(800);
   };
 
-  const imgLoad = () => {
-    console.log('loaded');
+  const imgLoad = (): void => {
+    // Fix for not being able to get correct resolution when uploading objectURL
+    // Waits for image to fully load in document then displays it in div
     if (!imgDiv.current) return;
     const { current } = imgDiv;
     current.style.backgroundImage = `url(${imgUrl})`;
 
     const img = new Image();
-    img.onload = () => {
+    img.onload = (): void => {
       const { height, width } = img;
-      console.log(height, width);
       setH(height);
       setW(width);
     };
     img.src = imgUrl;
   };
 
-  const handleImgChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImgChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const imgFile = event.target.files ? event.target.files[0] : undefined;
     if (!imgFile) {
       setErr('Invalid File.');
@@ -54,7 +54,6 @@ const Hello = () => {
     const wURL = window.URL || window.webkitURL;
     const url = wURL.createObjectURL(imgFile);
     setUrl(url);
-    console.log(image);
     setImage(imgFile);
   };
 
@@ -64,7 +63,6 @@ const Hello = () => {
     shortSide: number
   ): number => {
     const ratio = divSide / longSide;
-    console.log(ratio, divSide, longSide, shortSide);
     const newDimension = shortSide * ratio;
     return newDimension;
   };
@@ -77,7 +75,8 @@ const Hello = () => {
     let shortSide = 0;
     let divSide = 0;
     let action: Dispatch<SetStateAction<number>>;
-    // max of the two
+    // Calculate resolution based off longer side
+    // Shorter side with then always be smaller than maximum allowed resolution of div
     if (imgW > imgH) {
       divSide = rect.width;
       longSide = imgW;
@@ -92,9 +91,7 @@ const Hello = () => {
       setNewH(divSide);
     }
     const newDimension = computeNewDimension(longSide, divSide, shortSide);
-    console.log(newDimension);
     action(newDimension);
-    console.log(longSide);
   };
 
   const getFourFive = (): void => {
@@ -122,6 +119,11 @@ const Hello = () => {
   const aspectChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { target } = event;
     const { value } = target;
+    const img = imgDiv.current as HTMLDivElement;
+    if (img) {
+      // Reset position
+      img.style.transform = 'none';
+    }
     const numVal = Number(value);
     setChecked(numVal);
     switch (numVal) {
@@ -142,7 +144,53 @@ const Hello = () => {
     }
   };
 
-  // Image resizer/converter?
+  const mouseDown = (event: MouseEvent<HTMLDivElement>): void => {
+    event.preventDefault();
+    if (event.button !== 0) return;
+    let xChange = 0;
+    let yChange = 0;
+    let lastX = event.clientX;
+    let lastY = event.clientY;
+    let xDiff = 0;
+    let yDiff = 0;
+    const target = event.target as HTMLDivElement;
+
+    const mouseMove = (e: MouseEvent<Document>): void => {
+      // Calculate new position using last/current positions
+      e.preventDefault();
+      // Will result in either -1 (right) / 0 (no change) / +1 (left)
+      xChange = lastX - e.clientX;
+      yChange = lastY - e.clientY; 
+      // Reset last position to current mouse position
+      lastX = e.clientX; 
+      lastY = e.clientY;
+
+      // Diff from initial position
+      // (-)px moves to the left/up
+      xDiff -= xChange;
+      yDiff -= yChange;
+
+      // 0.0000002 * xChange ** 3
+      // Figure out how to slow down translation farther and farther you go
+      target.style.transform = `translate3d(${xDiff}px, ${yDiff}px, 0px) scale(1)`;
+    };
+
+    const mouseUp = (e: MouseEvent<HTMLDivElement>): void => {
+      // Reset all event listeners, making sure it doesn't move
+      e.preventDefault();
+      if (e.button !== 0) return;
+      document.onmousemove = null;
+      document.onmouseup = null;
+      target.style.transform = 'none';
+    };
+
+    // Ignore TS(2322); can't use "this" on an arrow function
+    // @ts-ignore
+    document.onmouseup = mouseUp;
+    // @ts-ignore
+    document.onmousemove = mouseMove;
+  };
+
   return (
     <Main meta={<Meta title="Test" description="Test Page" />}>
       <div>
@@ -201,21 +249,27 @@ const Hello = () => {
             <label htmlFor="sixteen">16:9</label>
           </div>
         </div>
-        {/* Figure out how to resize image depending on aspect ratio */}
+        {/* Parent div creates the borders */}
+        {/* While background-image div is always showing the full image, just resizing as needed according to border */}
+        {/* Need to adjust to reflect this */}
+        {/* Detect original aspect ratio to avoid clipping image in case of shrinking border instead of fitting image */}
+        {/* ex: 16:9 og img, instead of fully zooming image then lowering top/bottom border, just zoom out image to fit in parent div */}
+        {/* Border/parent div movement depends on original img aspect ratio */}
         <div style={{ display: 'none' }}>
           <img src={imgUrl} onLoad={imgLoad} alt="Hidden Image" />
         </div>
         <div
           ref={imgParent}
-          className="flex aspect-square w-800 items-center justify-center"
+          className="relative flex aspect-square w-800 items-center justify-center overflow-hidden"
         >
           <div
             style={{
               width: `${newW || 800}px`,
               height: `${newH || 800}px`,
             }}
-            className="h-full w-full bg-cover bg-center bg-no-repeat"
+            className="absolute h-full w-full bg-cover bg-center bg-no-repeat"
             ref={imgDiv}
+            onMouseDown={mouseDown}
           />
         </div>
         <div className="flex aspect-square w-800 justify-around">
