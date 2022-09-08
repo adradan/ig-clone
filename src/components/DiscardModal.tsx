@@ -54,7 +54,6 @@ const ExportModal = (props: Props) => {
                   <DivSeparator />
                   <div className="py-2">
                     <button className="text-sm">Cancel</button>
-                    {/* Test */}
                   </div>
                 </div>
               </Dialog.Panel>
