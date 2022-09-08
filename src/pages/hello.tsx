@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import DiscardModal from '@/components/DiscardModal';
 import UploadModal from '@/components/UploadModal';
 import { Meta } from '@/layouts/Meta';
 import { Main } from '@/templates/Main';
@@ -7,9 +8,14 @@ import { Main } from '@/templates/Main';
 // Work on dragging image
 const Hello = () => {
   const [open, setOpen] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
 
   const buttonClick = () => {
     setOpen(!open);
+  };
+
+  const discardClick = () => {
+    setDiscardOpen(!discardOpen);
   };
 
   return (
@@ -19,7 +25,8 @@ const Hello = () => {
           Open/Close
         </button>
 
-        <UploadModal open={open} setOpen={setOpen} />
+        <UploadModal open={open} setOpen={setOpen} discardOpen={discardClick} />
+        <DiscardModal open={discardOpen} setOpen={setDiscardOpen} />
       </div>
     </Main>
   );

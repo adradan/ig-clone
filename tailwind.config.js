@@ -43,6 +43,9 @@ module.exports = {
         300: '300px',
         800: '800px',
       },
+      height: {
+        1: '1px'
+      }
     },
   },
   plugins: [],

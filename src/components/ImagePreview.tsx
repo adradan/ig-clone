@@ -56,11 +56,11 @@ const ImagePreview = (props: PreviewProps) => {
   return (
     <div
       style={{
-        width: `${props.width}px`,
-        height: `${props.height}px`,
+        width: `100%`,
+        height: `100%`,
         backgroundImage: `url("${props.imageUrl}")`,
       }}
-      className="absolute h-full w-full bg-cover bg-center bg-no-repeat"
+      className=" h-full w-full bg-cover bg-center bg-no-repeat"
       onMouseDown={mouseDown}
     />
   );
