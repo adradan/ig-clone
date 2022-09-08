@@ -52,10 +52,9 @@ const ExportModal = (props: Props) => {
                     </button>
                   </div>
                   <DivSeparator />
-                    <div className="py-2">
-                      <button className="text-sm">
-                        Cancel
-                      </button>
+                  <div className="py-2">
+                    <button className="text-sm">Cancel</button>
+                    {/* Test */}
                   </div>
                 </div>
               </Dialog.Panel>
