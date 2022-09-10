@@ -1,10 +1,10 @@
 @tailwind base;
 
-.lol {
-  align-items: center;
-  justify-content: center;
-  height: 2000px;
-  width: 2000px;
+@font-face {
+  font-family: 'Exposition';
+  font-style: normal;
+  font-weight: normal;
+  src: url('../fonts/Exposition.ttf');
 }
 
 a {

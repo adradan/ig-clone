@@ -9,6 +9,7 @@ import { Main } from '@/templates/Main';
 const Hello = () => {
   const [open, setOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
+  const [stage, setStage] = useState(0);
 
   const buttonClick = () => {
     setOpen(!open);
@@ -25,8 +26,17 @@ const Hello = () => {
           Open/Close
         </button>
 
-        <UploadModal open={open} setOpen={setOpen} discardOpen={discardClick} />
-        <DiscardModal open={discardOpen} setOpen={setDiscardOpen} />
+        <UploadModal
+          open={open}
+          setOpen={setOpen}
+          discardOpen={discardClick}
+          stageInfo={{ stage, setStage }}
+        />
+        <DiscardModal
+          open={discardOpen}
+          setOpen={setDiscardOpen}
+          setStage={setStage}
+        />
       </div>
     </Main>
   );

@@ -42,10 +42,39 @@ module.exports = {
       width: {
         300: '300px',
         800: '800px',
+        test: 'calc(100vw - 10px)',
+        '30vw': '30vw',
+        '40vw': '40vw',
+        '50vw': '50vw',
       },
       height: {
-        1: '1px'
-      }
+        1: '1px',
+        24: '24px',
+        64: '64px',
+        96: '96px',
+        128: '128px',
+        '60vh': '60vh',
+        '30vh': '30vh',
+        '50vh': '50vh',
+        '5rem': '5rem',
+        '6rem': '6rem',
+      },
+      transitionDuration: {
+        25: '25ms',
+      },
+      transitionProperty: {
+        width: 'width',
+        height: 'height',
+      },
+      borderWidth: {
+        1: '1px',
+      },
+      fontFamily: {
+        exposition: ['Exposition', 'sans-serif'],
+      },
+      fontSize: {
+        '2xl': '1.75rem',
+      },
     },
   },
   plugins: [],
