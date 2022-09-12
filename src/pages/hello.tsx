@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import DiscardModal from '@/components/DiscardModal';
 import UploadModal from '@/components/UploadModal';

@@ -4,6 +4,8 @@ import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { Fragment, useRef, useState } from 'react';
 
 import ImagePreview from '@/components/ImagePreview';
+import SongSelect from '@/components/SongSelect';
+import PhotoDetails from '@/components/PhotoDetails';
 import UploadStage from '@/components/UploadStage';
 
 import DivSeparator from './DivSeparator';
@@ -47,6 +49,11 @@ const UploadModal = (props: ModalProps) => {
     }
   };
 
+  const handleNext = () => {
+    const newStage = stage + 1;
+    setStage(newStage);
+  };
+
   const getDivDimensions = () => {
     if (!stageDiv.current) {
       return;
@@ -72,6 +79,7 @@ const UploadModal = (props: ModalProps) => {
     const url = window.URL.createObjectURL(image);
     const newInfo: ImageInfo = { ...imageInfo, url, imageFile: image };
     setImageInfo(newInfo);
+    setStage(1);
   };
 
   const imgLoad = () => {
@@ -85,7 +93,6 @@ const UploadModal = (props: ModalProps) => {
         originalWidth: width,
       };
       setImageInfo(newImgInfo);
-      setStage(1);
     };
     img.src = imageInfo.url || '';
   };
@@ -150,9 +157,9 @@ const UploadModal = (props: ModalProps) => {
                       className={`h-full font-semibold text-sky-500 ${
                         stage > 0 ? '' : 'hidden'
                       }`}
-                      onClick={() => setStage(2)}
+                      onClick={handleNext}
                     >
-                      Next
+                      {stage < 3 ? 'Next' : 'Post'}
                     </button>
                   </div>
                 </div>
@@ -161,6 +168,10 @@ const UploadModal = (props: ModalProps) => {
                   type="file"
                   ref={fileInput}
                   onChange={handleNewImage}
+                  onClick={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    target.value = '';
+                  }}
                   style={{ display: 'none' }}
                 />
                 <div className="flex w-full flex-col">
@@ -175,7 +186,7 @@ const UploadModal = (props: ModalProps) => {
                       />
                       <button
                         type="button"
-                        className=" rounded bg-sky-500 px-2 py-1 text-sm font-semibold text-white"
+                        className="rounded bg-sky-500 px-2 py-1 text-sm font-semibold text-white"
                         onClick={openFileSelect}
                       >
                         Select from Computer
@@ -196,7 +207,7 @@ const UploadModal = (props: ModalProps) => {
                       stage > 1 ? 'h-5rem' : 'h-0'
                     } flex w-full flex-col text-left transition-height duration-300 ease-in-out`}
                   >
-                    <div className="h-full p-4">
+                    <PhotoDetails shown={stage === 2}>
                       <textarea
                         placeholder="Write a caption..."
                         autoCorrect="off"
@@ -206,7 +217,13 @@ const UploadModal = (props: ModalProps) => {
                         onChange={captionChange}
                         value={imageInfo.caption}
                       />
-                    </div>
+                    </PhotoDetails>
+                    <PhotoDetails
+                      shown={stage === 3}
+                      classes="flex justify-around"
+                    >
+                      <SongSelect />
+                    </PhotoDetails>
                   </div>
                 </div>
               </Dialog.Panel>
