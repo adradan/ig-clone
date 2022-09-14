@@ -3,9 +3,10 @@ import { ArrowLeftIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { Fragment, useRef, useState } from 'react';
 
+import FileButton from '@/components/FileButton';
 import ImagePreview from '@/components/ImagePreview';
-import SongSelect from '@/components/SongSelect';
 import PhotoDetails from '@/components/PhotoDetails';
+import SongSelect from '@/components/SongSelect';
 import UploadStage from '@/components/UploadStage';
 
 import DivSeparator from './DivSeparator';
@@ -28,11 +29,18 @@ interface ImageInfo {
   caption?: string;
 }
 
+interface SongInfo {
+  songFile?: File;
+  start?: number;
+  url?: string;
+}
+
 // Thanks to https://tailwindui.com/components/application-ui/overlays/modals
 const UploadModal = (props: ModalProps) => {
   const [divHeight, setDivHeight] = useState(0);
   const [divWidth, setDivWidth] = useState(0);
   const [imageInfo, setImageInfo] = useState<ImageInfo>({});
+  const [songInfo, setSongInfo] = useState<SongInfo>({});
 
   const { stageInfo } = props;
   const { stage, setStage } = stageInfo;
@@ -97,17 +105,15 @@ const UploadModal = (props: ModalProps) => {
     img.src = imageInfo.url || '';
   };
 
-  const openFileSelect = () => {
-    if (!fileInput.current) return;
-    const { current } = fileInput;
-    current.click();
-  };
-
   const captionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     if (!event.target) return;
     const { value } = event.target;
     const newInfo = { ...imageInfo, caption: value };
     setImageInfo(newInfo);
+  };
+
+  const changeSongInfo = (newInfo: SongInfo) => {
+    setSongInfo(newInfo);
   };
 
   return (
@@ -164,16 +170,6 @@ const UploadModal = (props: ModalProps) => {
                   </div>
                 </div>
                 <DivSeparator />
-                <input
-                  type="file"
-                  ref={fileInput}
-                  onChange={handleNewImage}
-                  onClick={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    target.value = '';
-                  }}
-                  style={{ display: 'none' }}
-                />
                 <div className="flex w-full flex-col">
                   <div ref={stageDiv} className="w-30vw ">
                     <UploadStage shown={stage === 0}>
@@ -184,13 +180,12 @@ const UploadModal = (props: ModalProps) => {
                         alt="Hidden Uploaded Image"
                         style={{ display: 'none' }}
                       />
-                      <button
-                        type="button"
-                        className="rounded bg-sky-500 px-2 py-1 text-sm font-semibold text-white"
-                        onClick={openFileSelect}
-                      >
-                        Select from Computer
-                      </button>
+                      <FileButton
+                        onChange={handleNewImage}
+                        ref={fileInput}
+                        name={'Select from Computer'}
+                        accept="image/jpeg,image/png"
+                      />
                     </UploadStage>
                     <UploadStage shown={stage >= 1}>
                       <div className="flex aspect-square w-30vw">
@@ -219,10 +214,15 @@ const UploadModal = (props: ModalProps) => {
                       />
                     </PhotoDetails>
                     <PhotoDetails
-                      shown={stage === 3}
+                      shown={stage >= 3}
                       classes="flex justify-around"
                     >
-                      <SongSelect />
+                      <SongSelect
+                        changeSongInfo={changeSongInfo}
+                        songInfo={songInfo}
+                        stage={stage}
+                        setStage={setStage}
+                      />
                     </PhotoDetails>
                   </div>
                 </div>

@@ -1,37 +1,56 @@
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { useRef } from 'react';
 
-const SongSelect = () => {
+import FileButton from '@/components/FileButton';
+
+interface SongInfo {
+  songFile?: File;
+  start?: number;
+  url?: string;
+}
+
+interface SelectProps {
+  changeSongInfo(newInfo: SongInfo): void;
+  songInfo: SongInfo;
+  stage: number;
+  setStage: Dispatch<SetStateAction<number>>;
+}
+
+const SongSelect = (props: SelectProps) => {
+  const { songInfo, stage, setStage } = props;
+
   const fileInput = useRef<HTMLInputElement | null>(null);
 
   const newSong = (event: ChangeEvent<HTMLInputElement>) => {
-    const target = event.target as HTMLInputElement;
-  };
-
-  const openSelector = () => {
-    if (!fileInput.current) return;
-    fileInput.current.click();
+    const songFiles = event.target.files;
+    if (!songFiles || songFiles.length > 1 || !songFiles[0]) return;
+    const url = window.URL.createObjectURL(songFiles[0]);
+    const newInfo = { ...songInfo, songFile: songFiles[0], url };
+    props.changeSongInfo(newInfo);
+    setStage(4);
   };
 
   return (
     <>
-      <input
-        type="file"
-        hidden={true}
-        onChange={newSong}
-        ref={fileInput}
-        onClick={(e) => {
-          const target = e.target as HTMLInputElement;
-          target.value = '';
-        }}
-      />
-      <button
-        type="button"
-        className="rounded bg-sky-500 px-2 py-1 text-sm font-semibold text-white"
-        onClick={openSelector}
+      <div
+        className="flex h-full w-full justify-around"
+        style={{ display: stage > 3 ? 'none' : '' }}
       >
-        Select a song.
-      </button>
+        <FileButton
+          onChange={newSong}
+          ref={fileInput}
+          name={'Select a song.'}
+          accept="audio/mp3"
+        />
+      </div>
+      <div
+        className="flex h-full w-full justify-around"
+        style={{ display: stage > 3 ? '' : 'none' }}
+      >
+        <div>
+          <audio controls src={songInfo.url || ''} />
+        </div>
+      </div>
     </>
   );
 };
