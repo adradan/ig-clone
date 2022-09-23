@@ -41,6 +41,7 @@ const UploadModal = (props: ModalProps) => {
   const [divWidth, setDivWidth] = useState(0);
   const [imageInfo, setImageInfo] = useState<ImageInfo>({});
   const [songInfo, setSongInfo] = useState<SongInfo>({});
+  const [validInput, setValidInput] = useState(false);
 
   const { stageInfo } = props;
   const { stage, setStage } = stageInfo;
@@ -59,6 +60,8 @@ const UploadModal = (props: ModalProps) => {
 
   const handleNext = () => {
     const newStage = stage + 1;
+    if (stage === 2 && !imageInfo.caption) return;
+    setValidInput(false);
     setStage(newStage);
   };
 
@@ -101,6 +104,7 @@ const UploadModal = (props: ModalProps) => {
         originalWidth: width,
       };
       setImageInfo(newImgInfo);
+      setValidInput(true);
     };
     img.src = imageInfo.url || '';
   };
@@ -108,11 +112,13 @@ const UploadModal = (props: ModalProps) => {
   const captionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     if (!event.target) return;
     const { value } = event.target;
+    setValidInput(!!value);
     const newInfo = { ...imageInfo, caption: value };
     setImageInfo(newInfo);
   };
 
   const changeSongInfo = (newInfo: SongInfo) => {
+    setValidInput(!!newInfo.songFile);
     setSongInfo(newInfo);
   };
 
@@ -161,7 +167,7 @@ const UploadModal = (props: ModalProps) => {
                     </Dialog.Title>
                     <button
                       className={`h-full font-semibold text-sky-500 ${
-                        stage > 0 ? '' : 'hidden'
+                        validInput && stage > 0 ? '' : 'hidden'
                       }`}
                       onClick={handleNext}
                     >

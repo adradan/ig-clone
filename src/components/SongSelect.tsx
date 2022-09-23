@@ -1,6 +1,7 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { useRef } from 'react';
 
+import AudioPlayer from '@/components/AudioPlayer';
 import FileButton from '@/components/FileButton';
 
 interface SongInfo {
@@ -25,6 +26,7 @@ const SongSelect = (props: SelectProps) => {
     const songFiles = event.target.files;
     if (!songFiles || songFiles.length > 1 || !songFiles[0]) return;
     const url = window.URL.createObjectURL(songFiles[0]);
+    console.log(songFiles[0]);
     const newInfo = { ...songInfo, songFile: songFiles[0], url };
     props.changeSongInfo(newInfo);
     setStage(4);
@@ -47,9 +49,7 @@ const SongSelect = (props: SelectProps) => {
         className="flex h-full w-full justify-around"
         style={{ display: stage > 3 ? '' : 'none' }}
       >
-        <div>
-          <audio controls src={songInfo.url || ''} />
-        </div>
+        <AudioPlayer url={songInfo.url} />
       </div>
     </>
   );
